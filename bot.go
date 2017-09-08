@@ -85,11 +85,10 @@ func show(bot *BOT, event *slack.MessageEvent) {
 	message := ""
 	for {
 		n, err := file.Read(buf)
-		if err != nil {
-			bot.rtm.SendMessage(bot.rtm.NewOutgoingMessage("Fail to read:cold_sweat:", event.Channel))
+		if n == 0 {
 			break
 		}
-		if n == 0 {
+		if err != nil {
 			break
 		}
 		message += "\n" + string(buf[:n])
