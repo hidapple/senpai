@@ -1,10 +1,18 @@
 package main
 
 import (
+	"log"
 	"os"
 	"strings"
 
 	"github.com/nlopes/slack"
+)
+
+const (
+	ExitCodeOk    int = iota
+	ExitCodeError int = iota
+
+	Path string = "./idealist.txt"
 )
 
 var (
@@ -48,23 +56,29 @@ func (bot *BOT) Run() int {
 			}
 
 		case *slack.InvalidAuthEvent:
-			return 1
+			return ExitCodeError
 		}
 	}
-	return 0
+	return ExitCodeOk
 }
 
 func add(bot *BOT, event *slack.MessageEvent) {
-	file, _ := os.OpenFile("./idealist.txt", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	file, err := os.OpenFile(Path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	if err != nil {
+		log.Fatal("Bye!")
+	}
 	defer file.Close()
 
 	contents := strings.SplitAfter(event.Text, "<@"+botID+"> add")
 	file.Write(([]byte)("-" + contents[1] + "\n"))
-	bot.rtm.SendMessage(bot.rtm.NewOutgoingMessage("added :+1:", event.Channel))
+	bot.rtm.SendMessage(bot.rtm.NewOutgoingMessage("added:+1:", event.Channel))
 }
 
 func show(bot *BOT, event *slack.MessageEvent) {
-	file, _ := os.Open("./idealist.txt")
+	file, err := os.Open(Path)
+	if err != nil {
+		log.Fatal("Bye!")
+	}
 	defer file.Close()
 
 	buf := make([]byte, 1024)
@@ -72,6 +86,7 @@ func show(bot *BOT, event *slack.MessageEvent) {
 	for {
 		n, err := file.Read(buf)
 		if err != nil {
+			bot.rtm.SendMessage(bot.rtm.NewOutgoingMessage("Fail to read:cold_sweat:", event.Channel))
 			break
 		}
 		if n == 0 {
