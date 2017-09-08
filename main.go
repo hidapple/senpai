@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"strings"
 
@@ -8,12 +9,17 @@ import (
 )
 
 var (
+	token   string
 	botID   string
 	botName string
 )
 
 func main() {
-	api := slack.New("")
+	if token = os.Getenv("SLACK_API_TOKEN"); token == "" {
+		fmt.Println("SLACK_API_TOKEN is empty.")
+		os.Exit(1)
+	}
+	api := slack.New(token)
 	rtm := api.NewRTM()
 	go rtm.ManageConnection()
 
