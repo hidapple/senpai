@@ -12,7 +12,7 @@ const (
 	ExitCodeOk    int = iota
 	ExitCodeError int = iota
 
-	Path string = "./idealist.txt"
+	IdeaFile string = "./idealist.txt"
 )
 
 var (
@@ -63,7 +63,7 @@ func (bot *BOT) Run() int {
 }
 
 func add(bot *BOT, event *slack.MessageEvent) {
-	file, err := os.OpenFile(Path, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
+	file, err := os.OpenFile(IdeaFile, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 	if err != nil {
 		log.Fatal("Bye!")
 	}
@@ -75,7 +75,10 @@ func add(bot *BOT, event *slack.MessageEvent) {
 }
 
 func show(bot *BOT, event *slack.MessageEvent) {
-	file, err := os.Open(Path)
+	if _, err := os.Stat(IdeaFile); err != nil {
+		return
+	}
+	file, err := os.Open(IdeaFile)
 	if err != nil {
 		log.Fatal("Bye!")
 	}
