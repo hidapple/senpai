@@ -1,7 +1,7 @@
 # senpai
 senpai is Slack bot to collect idea for rbooks hackday.
 
-# Usage
+## Usage
 Run as Docker container
 ```sh
 $ docker build -t ${tag} .
